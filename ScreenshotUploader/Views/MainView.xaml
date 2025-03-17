@@ -1,0 +1,28 @@
+﻿<Window x:Class="ScreenshotUploader.Views.MainView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ScreenshotUploader.Views"
+        xmlns:vm="clr-namespace:ScreenshotUploader.ViewModels"
+        xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
+        mc:Ignorable="d" ResizeMode="NoResize"
+        Title="ScreenshotUploader" Name ="MainWindow" Height="314" Width="800">
+    <behaviors:Interaction.Triggers>
+        <behaviors:EventTrigger EventName="Closed" SourceObject="{Binding ElementName=MainWindow}">
+            <behaviors:InvokeCommandAction 
+                                        Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}},
+                                        Path=DataContext.Close}" />
+        </behaviors:EventTrigger>
+    </behaviors:Interaction.Triggers>
+    <Grid>
+        <Button Command ="{Binding SelectScreenshots}"  Content="Выбрать скриншоты для игры" Margin="200,146,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="429" Height="41"/>
+        <Label HorizontalAlignment="Left" Content="AppId" Margin="24,91,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.981,-0.49"/>
+        <TextBox HorizontalAlignment="Right" VerticalAlignment="Top" Text="{Binding CurrentAppId, Mode=TwoWay}" Margin="0,95,34,0" TextWrapping="Wrap" Width="682" Height="22"/>
+        <Button Command ="{Binding Upload}" Content="Загрузить в Steam" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="293,218,0,0" Width="242" Height="34"/>
+        <Label Content="Задать корневую папку Steam" HorizontalAlignment="Left" Margin="24,32,0,0" VerticalAlignment="Top"/>
+        <Button Content="Выбрать" Command="{Binding ChooseSteamRootDirectory}" HorizontalAlignment="Left" Margin="242,35,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Width="93"/>
+        <Label Content="Текущая папка Steam" HorizontalAlignment="Left" Margin="361,32,0,0" VerticalAlignment="Top"/>
+        <TextBox IsReadOnly="True" HorizontalAlignment="Left" Margin="494,37,0,0" TextWrapping="Wrap" Text="{Binding SteamDirectory, Mode=TwoWay}" VerticalAlignment="Top" Width="280"/>
+    </Grid>
+</Window>
