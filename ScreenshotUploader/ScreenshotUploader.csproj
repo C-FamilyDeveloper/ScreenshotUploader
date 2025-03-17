@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\MVVMUtilities\MVVMUtilities\MVVMUtilities.csproj" />
     <ProjectReference Include="..\WinFormsUtilities\WinFormsUtilities.csproj" />
   </ItemGroup>
 
