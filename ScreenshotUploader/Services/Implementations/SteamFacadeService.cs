@@ -2,6 +2,7 @@
 using MVVMUtilities.Services;
 using ScreenshotUploader.Builders.FileDestinationBuilder.Implementations;
 using ScreenshotUploader.Models;
+using ScreenshotUploader.Models.SteamModels.Responces;
 using ScreenshotUploader.Services.Abstractions;
 using System;
 using System.Collections.Generic;
@@ -15,18 +16,15 @@ namespace ScreenshotUploader.Services.Implementations
     {
         private readonly IFileQueryService fileService;
         private readonly ISteamDirectoryService steamDirectoryService;
-        private readonly IAppIdService appIdService;
 
         public SteamFacadeService(IFileQueryService fileService,
-            ISteamDirectoryService steamDirectoryService,
-            IAppIdService appIdService)
+            ISteamDirectoryService steamDirectoryService)
         {
             this.fileService = fileService;
             this.steamDirectoryService = steamDirectoryService;
-            this.appIdService = appIdService;
         }
 
-        public void UploadScreenshots(string? remoteSteamPath, IEnumerable<string> screenshots, string gameId)
+        public void UploadScreenshots(string? remoteSteamPath, IEnumerable<Screenshot> screenshots)
         {
             if (remoteSteamPath is null)
             {
@@ -38,18 +36,21 @@ namespace ScreenshotUploader.Services.Implementations
                 throw new ArgumentException("Необходимо выбрать изображения");
             }
 
-            if (string.IsNullOrWhiteSpace(gameId))
+            var groups = screenshots.GroupBy(i => i.AppId);
+            foreach (var group in groups)
             {
-                throw new ArgumentException("Необходимо ввести AppId приложения", "Ошибка");
+                UploadGame(remoteSteamPath, group.Select(i => i.ScreenshotPath), group.Key);
             }
+        }
 
-            var correctId = appIdService.GetCorrectAppId(gameId);
-            var gameFolderPath = steamDirectoryService.CreateFolder(remoteSteamPath, correctId);
+        private void UploadGame(string remoteSteamPath, IEnumerable<string> screenshots, string gameId)
+        {
+            var gameFolderPath = steamDirectoryService.CreateFolder(remoteSteamPath, gameId);
             var screenPath = steamDirectoryService.CreateFolder(gameFolderPath, @"screenshots");
             var tumbPath = steamDirectoryService.CreateFolder(screenPath, @"thumbnails");
 
             var fileQuery = new FileQueryBuilder()
-                .AddFileGroupAppId(correctId)
+                .AddFileGroupAppId(gameId)
                 .AddFilePaths(screenshots)
                 .AddDestination(screenPath)
                 .AddDestination(tumbPath)

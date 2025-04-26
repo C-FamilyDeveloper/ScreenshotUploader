@@ -2,9 +2,13 @@
 using Microsoft.Extensions.DependencyInjection;
 using MVVMUtilities.Abstractions;
 using MVVMUtilities.Services;
+using ScreenshotUploader.DAL.DataContext.Abstractions;
+using ScreenshotUploader.DAL.DataContext.Implementations;
 using ScreenshotUploader.Models;
 using ScreenshotUploader.Services.Abstractions;
+using ScreenshotUploader.Services.Abstractions.DAL.RecentUsedGames;
 using ScreenshotUploader.Services.Implementations;
+using ScreenshotUploader.Services.Implementations.DAL.RecentUsedGames;
 using ScreenshotUploader.ViewModels;
 using ScreenshotUploader.Views;
 using System;
@@ -31,6 +35,7 @@ namespace ScreenshotUploader.Extensions
             {
                 var navigationService = new NavigationService(serviceProvider);
                 navigationService.ConfigureWindow<MainViewModel, MainView>();
+                navigationService.ConfigureWindow<AddGameViewModel, AddGameView>();
                 return navigationService;
             });
         }
@@ -53,6 +58,9 @@ namespace ScreenshotUploader.Extensions
             services.AddSingleton<IFreeDateReservingService, FreeDateReservingService>();
             services.AddSingleton<IFileQueryService, FileQueryService>(); 
             services.AddSingleton<IScreenshotInfoService, ScreenshotInfoService>();
+            services.AddScoped<ISteamAPIService, SteamAPIService>();
+            services.AddScoped<IRecentUsedGamesService, RecentUsedGameService>();
+            services.AddSingleton<IScreenshotsFormingService, ScreenshotsFormingService>();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -18,10 +19,24 @@ namespace ScreenshotUploader.Extensions
 
         public static IEnumerable<T> With<T, U>(this IEnumerable<T> collection, Expression<Func<T, U>> selector, U value)
         {
+            var propName = GetPropertyInfo(selector).Name;
             return collection.Select(i =>
             {
-                var propName = GetPropertyInfo(selector).Name;
                 i.GetType().GetProperty(propName).SetValue(i, value);
+                return i;
+            });
+        }
+
+        public static IEnumerable<T> With<T, U>(this IEnumerable<T> collection, Expression<Func<T, U>> selector, IEnumerable<U> values)
+        {
+            if (collection.Count()!= values.Count())
+            {
+                throw new ArgumentException($"Wrong count! collection: {collection.Count()} values: {values.Count()}");
+            }
+            var propName = GetPropertyInfo(selector).Name;
+            return collection.Zip(values, (i, j) =>
+            {
+                i.GetType().GetProperty(propName).SetValue(i, j);
                 return i;
             });
         }

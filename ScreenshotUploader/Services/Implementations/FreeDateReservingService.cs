@@ -13,6 +13,8 @@ namespace ScreenshotUploader.Services.Implementations
 
         private DateTime actualDate = DateTime.UtcNow;
 
+        private int currentCapacity = 0;
+
         public DateTime Reserve()
         {
             actualDate = actualDate.AddSeconds(1);
@@ -21,8 +23,9 @@ namespace ScreenshotUploader.Services.Implementations
 
         public void Reset(int capacity)
         {
-            oldestDate = oldestDate.AddSeconds(-(capacity+1));
+            oldestDate = oldestDate.AddSeconds(-(capacity + currentCapacity + 1));
             actualDate = oldestDate;
+            currentCapacity = capacity;
         }
     }
 }

@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace ScreenshotUploader.Services.Abstractions
 {
-    public interface ISteamFacadeService
+    public interface IScreenshotsFormingService
     {
-        void UploadScreenshots(string? remoteSteamPath, IEnumerable<Screenshot> screenshots);
+        IEnumerable<Screenshot> CreateScreenshots(IEnumerable<string> paths, Game game);
     }
 }

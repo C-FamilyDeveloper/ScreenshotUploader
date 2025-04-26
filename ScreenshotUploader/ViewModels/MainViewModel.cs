@@ -3,24 +3,22 @@ using MVVMUtilities.Abstractions;
 using MVVMUtilities.Core;
 using ScreenshotUploader.Models;
 using ScreenshotUploader.Services.Abstractions;
-using System;
-using System.Collections.Generic;
+using ScreenshotUploader.Services.Abstractions.DAL.RecentUsedGames;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinFormsUtilities.Services.Abstractions;
 
 namespace ScreenshotUploader.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
-        private List<string> filePaths = new();
+        public CustomObservableCollection<Screenshot> Screenshots { get; set; } = new();
 
         public RelayCommand SelectScreenshots {  get; set; }
         public RelayCommand Upload {  get; set; }
         public RelayCommand Close {  get; set; }
         public RelayCommand ChooseSteamRootDirectory { get; set; }
+
+        public RelayCommand AddGame { get; set; }
 
         private readonly IMultiFileDialogService multiFileDialogService;
         private readonly IDialogService dialogService;
@@ -28,13 +26,28 @@ namespace ScreenshotUploader.ViewModels
         private readonly IFolderDialogService folderDialogService;
         private readonly IOptions<Config> config;
         private readonly ISearchRemoteFolderSteamService searchRemoteFolderSteamService;
+        private readonly IRecentUsedGamesService recentUsedGamesService;
+        private readonly INavigationService navigationService;
+        private readonly IScreenshotsFormingService screenshotsFormingService;
 
-        private string currentAppId;
-        public string CurrentAppId
-        {
-            get { return currentAppId; }
-            set { currentAppId = value.Trim(); OnPropertyChanged(); }
+        public ObservableCollection<Game> Games { get; set; }
+
+
+        public ObservableCollection<string> GameNames 
+        { 
+            get => new(Games.Select(i => i.Name));
+            set => GameNames = value;
         }
+
+        private int index = -1;
+
+        public int GameSelectedIndex
+        {
+            get { return index; }
+            set { index = value; OnPropertyChanged(); }
+        }
+
+
 
         private string? steamDirectory;
         public string? SteamDirectory
@@ -49,19 +62,34 @@ namespace ScreenshotUploader.ViewModels
             ISteamFacadeService steamService,
             IFolderDialogService folderDialogService,
             IOptions<Config> config,
-            ISearchRemoteFolderSteamService searchRemoteFolderSteamService)
+            ISearchRemoteFolderSteamService searchRemoteFolderSteamService,
+            IRecentUsedGamesService recentUsedGamesService,
+            INavigationService navigationService,
+            IScreenshotsFormingService screenshotsFormingService)
         {
             SelectScreenshots = new (ChooseScreenshotsAction);
             Upload = new(UploadAction);
             Close = new(CloseAction);
             ChooseSteamRootDirectory = new(ChooseSteamRootDirectoryAction);
             SteamDirectory = config.Value.SteamFolder;
+            AddGame = new(AddGameAction);
             this.multiFileDialogService = multiFileDialogService;
             this.dialogService = dialogService;
             this.steamService = steamService;
             this.folderDialogService = folderDialogService;
             this.config = config;
             this.searchRemoteFolderSteamService = searchRemoteFolderSteamService;
+            this.recentUsedGamesService = recentUsedGamesService;
+            this.navigationService = navigationService;
+            this.screenshotsFormingService = screenshotsFormingService;
+            Games = new(this.recentUsedGamesService.Read());
+            Games.CollectionChanged += GamesCollectionChanged;
+        }
+
+        private void GamesCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(Games));
+            OnPropertyChanged(nameof(GameNames));
         }
 
         private void ChooseSteamRootDirectoryAction()
@@ -88,8 +116,8 @@ namespace ScreenshotUploader.ViewModels
         {
             try
             {
-                steamService.UploadScreenshots(config.Value.RemoteFolder, filePaths, CurrentAppId);
-                CurrentAppId = string.Empty;
+                steamService.UploadScreenshots(config.Value.RemoteFolder, Screenshots);
+                GameSelectedIndex = -1;
                 dialogService.ShowMessage("Успешно завершено");
             }
             catch (Exception ex)
@@ -100,15 +128,31 @@ namespace ScreenshotUploader.ViewModels
 
         private void ChooseScreenshotsAction()
         {
-            filePaths.Clear();
             try
             {
                 var paths = multiFileDialogService.GetFilePaths();
-                filePaths.AddRange(paths);
+                var game = GameSelectedIndex >= 0 ? Games[GameSelectedIndex] : null;
+                Screenshots.AddRange(screenshotsFormingService.CreateScreenshots(paths, game));   
             }
-            catch (Exception)
+            catch (Exception ex) 
             {
-                dialogService.ShowErrorMessage("Необходимо выбрать изображения", "Ошибка");
+                dialogService.ShowErrorMessage(ex.Message, "Ошибка");
+            }
+        }
+
+        private void AddGameAction()
+        {
+            try
+            {
+                navigationService.ShowDialog<AddGameViewModel>();
+                var context = navigationService.GetDataContext<AddGameViewModel>();
+                recentUsedGamesService.Create(context.Game);
+                Games.Add(context.Game);
+                GameSelectedIndex = Games.Count - 1;
+            }
+            catch (Exception ex)
+            {
+                dialogService.ShowErrorMessage(ex.Message, "Ошибка");
             }
         }
     }

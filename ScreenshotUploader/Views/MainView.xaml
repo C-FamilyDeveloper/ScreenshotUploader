@@ -7,7 +7,7 @@
         xmlns:vm="clr-namespace:ScreenshotUploader.ViewModels"
         xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d" ResizeMode="NoResize"
-        Title="ScreenshotUploader" Name ="MainWindow" Height="314" Width="800">
+        Title="ScreenshotUploader" Name ="MainWindow" Height="412" Width="800">
     <behaviors:Interaction.Triggers>
         <behaviors:EventTrigger EventName="Closed" SourceObject="{Binding ElementName=MainWindow}">
             <behaviors:InvokeCommandAction 
@@ -16,13 +16,21 @@
         </behaviors:EventTrigger>
     </behaviors:Interaction.Triggers>
     <Grid>
-        <Button Command ="{Binding SelectScreenshots}"  Content="Выбрать скриншоты для игры" Margin="200,146,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="429" Height="41"/>
-        <Label HorizontalAlignment="Left" Content="AppId" Margin="24,91,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.981,-0.49"/>
-        <TextBox HorizontalAlignment="Right" VerticalAlignment="Top" Text="{Binding CurrentAppId, Mode=TwoWay}" Margin="0,95,34,0" TextWrapping="Wrap" Width="682" Height="22"/>
-        <Button Command ="{Binding Upload}" Content="Загрузить в Steam" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="293,218,0,0" Width="242" Height="34"/>
+        <Button Command ="{Binding SelectScreenshots}"  Content="Выбрать скриншоты для игры" Margin="0,109,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" Width="177" Height="25"/>
+        <Label HorizontalAlignment="Left" Content="Игра" Margin="48,71,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.981,-0.49"/>
+        <ComboBox ItemsSource="{Binding GameNames, Mode=TwoWay}" HorizontalAlignment="Right" VerticalAlignment="Top" SelectedIndex="{Binding GameSelectedIndex, Mode=TwoWay}" Margin="0,75,189,0"  Width="503" Height="22">
+        </ComboBox>
+        <Button Command ="{Binding Upload}" Content="Загрузить в Steam" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,342,0,0" Width="242" Height="34"/>
         <Label Content="Задать корневую папку Steam" HorizontalAlignment="Left" Margin="24,32,0,0" VerticalAlignment="Top"/>
         <Button Content="Выбрать" Command="{Binding ChooseSteamRootDirectory}" HorizontalAlignment="Left" Margin="242,35,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Width="93"/>
         <Label Content="Текущая папка Steam" HorizontalAlignment="Left" Margin="361,32,0,0" VerticalAlignment="Top"/>
         <TextBox IsReadOnly="True" HorizontalAlignment="Left" Margin="494,37,0,0" TextWrapping="Wrap" Text="{Binding SteamDirectory, Mode=TwoWay}" VerticalAlignment="Top" Width="280"/>
+        <Button Content="Добавить" Command="{Binding AddGame}" HorizontalAlignment="Left" Margin="647,77,0,0" VerticalAlignment="Top" Width="78"/>
+        <DataGrid ItemsSource="{Binding Screenshots, Mode=TwoWay}" IsReadOnly="True" AutoGenerateColumns="False" Margin="0,154,0,73">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Игра" Binding="{Binding GameName}"/>
+                <DataGridTextColumn Header="Скриншот" Binding="{Binding ScreenshotPath}"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Window>
