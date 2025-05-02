@@ -17,7 +17,12 @@ namespace ScreenshotUploader.Services.Implementations
     {
         public async Task<string> GetGameNameByAppId(string appId, CancellationToken cancellationToken)
         {
-            using var httpClient = new HttpClient();
+            using var handler = new HttpClientHandler()
+            {
+                Proxy = HttpClient.DefaultProxy,
+                UseProxy = true
+            };
+            using var httpClient = new HttpClient(handler);
             var response = await httpClient.GetAsync(
                 $"https://store.steampowered.com/api/appdetails?appids={Convert.ToInt32(appId)}",
                 cancellationToken);
