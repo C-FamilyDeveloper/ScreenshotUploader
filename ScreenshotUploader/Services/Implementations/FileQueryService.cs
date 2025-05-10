@@ -32,7 +32,7 @@ namespace ScreenshotUploader.Services.Implementations
                 foreach (var destination in fileQuery.Destinations)
                 {
                     CopyFileToDirectoryWithNewName(fileQuery.FilePaths.ElementAt(i), destination, newName);
-                    SetFileCreationTime(fileQuery.FilePaths.ElementAt(i), newDate);
+                    SetFileMetadata(fileQuery.FilePaths.ElementAt(i), newDate);
                 }
             }
         }
@@ -42,9 +42,11 @@ namespace ScreenshotUploader.Services.Implementations
             File.Copy(filePath, Path.Combine(directoryPath, newName));
         }
 
-        private void SetFileCreationTime(string fileName, DateTime dateTime)
+        private void SetFileMetadata(string fileName, DateTime dateTime)
         {
             File.SetCreationTimeUtc(fileName, dateTime);
+            File.SetLastAccessTimeUtc(fileName, dateTime);
+            File.SetLastWriteTimeUtc(fileName, dateTime);
         }
     }
 }

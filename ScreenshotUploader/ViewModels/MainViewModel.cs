@@ -1,10 +1,15 @@
 ﻿using Microsoft.Extensions.Options;
 using MVVMUtilities.Abstractions;
 using MVVMUtilities.Core;
+using ScreenshotUploader.Extensions;
 using ScreenshotUploader.Models;
+using ScreenshotUploader.Models.SteamModels.Responses;
 using ScreenshotUploader.Services.Abstractions;
 using ScreenshotUploader.Services.Abstractions.DAL.RecentUsedGames;
+using ScreenshotUploader.Services.Abstractions.Resources;
+using ScreenshotUploader.Services.Abstractions.SteamAPI;
 using System.Collections.ObjectModel;
+using System.Windows;
 using WinFormsUtilities.Services.Abstractions;
 
 namespace ScreenshotUploader.ViewModels
@@ -17,8 +22,8 @@ namespace ScreenshotUploader.ViewModels
         public RelayCommand Upload {  get; set; }
         public RelayCommand Close {  get; set; }
         public RelayCommand ChooseSteamRootDirectory { get; set; }
-
         public RelayCommand AddGame { get; set; }
+        public AsyncRelayCommand Load {  get; set; }    
 
         private readonly IMultiFileDialogService multiFileDialogService;
         private readonly IDialogService dialogService;
@@ -29,6 +34,8 @@ namespace ScreenshotUploader.ViewModels
         private readonly IRecentUsedGamesService recentUsedGamesService;
         private readonly INavigationService navigationService;
         private readonly IScreenshotsFormingService screenshotsFormingService;
+        private readonly IResourcesService<Game> resourcesService;
+        private readonly ISteamAPIService steamAPIService;
 
         public ObservableCollection<Game> Games { get; set; }
 
@@ -65,7 +72,9 @@ namespace ScreenshotUploader.ViewModels
             ISearchRemoteFolderSteamService searchRemoteFolderSteamService,
             IRecentUsedGamesService recentUsedGamesService,
             INavigationService navigationService,
-            IScreenshotsFormingService screenshotsFormingService)
+            IScreenshotsFormingService screenshotsFormingService,
+            IResourcesService<Game> resourcesService,
+            ISteamAPIService steamAPIService)
         {
             SelectScreenshots = new (ChooseScreenshotsAction);
             Upload = new(UploadAction);
@@ -82,8 +91,17 @@ namespace ScreenshotUploader.ViewModels
             this.recentUsedGamesService = recentUsedGamesService;
             this.navigationService = navigationService;
             this.screenshotsFormingService = screenshotsFormingService;
+            this.resourcesService = resourcesService;
+            this.steamAPIService = steamAPIService;
             Games = new(this.recentUsedGamesService.Read());
             Games.CollectionChanged += GamesCollectionChanged;
+            Load = new(LoadAction);
+        }
+
+        private async Task LoadAction()
+        {
+            var result = await steamAPIService.GetGameListAsync(CancellationToken.None);
+            resourcesService.SetResource(result);
         }
 
         private void GamesCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -132,7 +150,8 @@ namespace ScreenshotUploader.ViewModels
             {
                 var paths = multiFileDialogService.GetFilePaths();
                 var game = GameSelectedIndex >= 0 ? Games[GameSelectedIndex] : null;
-                Screenshots.AddRange(screenshotsFormingService.CreateScreenshots(paths, game));   
+                Screenshots.AddRange(screenshotsFormingService.CreateScreenshots(paths, game));
+                GameSelectedIndex = -1;
             }
             catch (Exception ex) 
             {
@@ -146,6 +165,10 @@ namespace ScreenshotUploader.ViewModels
             {
                 navigationService.ShowDialog<AddGameViewModel>();
                 var context = navigationService.GetDataContext<AddGameViewModel>();
+                if (context.Game.IsEmpty())
+                {
+                    return;
+                }
                 recentUsedGamesService.Create(context.Game);
                 Games.Add(context.Game);
                 GameSelectedIndex = Games.Count - 1;

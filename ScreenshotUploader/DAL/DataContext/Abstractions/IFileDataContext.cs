@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ScreenshotUploader.DAL.DataContext.Abstractions
 {
-    public interface IFileDataContext 
+    public interface IFileDataContext : IFileDataContextBase
     {
         IEnumerable<RecentUsedGame> RecentUsedGames { get; set; }
     }

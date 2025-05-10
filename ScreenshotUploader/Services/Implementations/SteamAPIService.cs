@@ -1,43 +1,54 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using ScreenshotUploader.Models.SteamModels.Responces;
-using ScreenshotUploader.Services.Abstractions;
+using ScreenshotUploader.Models.SteamModels.Responses;
+using ScreenshotUploader.Services.Abstractions.SteamAPI;
 using ScreenshotUploader.Strategies.SerializeStrategies;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ScreenshotUploader.Services.Implementations
 {
     public class SteamAPIService : ISteamAPIService
     {
-        public async Task<string> GetGameNameByAppId(string appId, CancellationToken cancellationToken)
+        private readonly IHttpClientFactory httpClientFactory;
+
+        public SteamAPIService(IHttpClientFactory httpClientFactory)
         {
-            using var handler = new HttpClientHandler()
-            {
-                Proxy = HttpClient.DefaultProxy,
-                UseProxy = true
-            };
-            using var httpClient = new HttpClient(handler);
-            var response = await httpClient.GetAsync(
-                $"https://store.steampowered.com/api/appdetails?appids={Convert.ToInt32(appId)}",
+            this.httpClientFactory = httpClientFactory;
+        }
+
+        public async Task<IEnumerable<Models.Game>> GetGameListAsync(CancellationToken cancellationToken)
+        {
+            using var httpClient = httpClientFactory.CreateClient();
+            var response = await httpClient.GetFromJsonAsync<SteamApps>(
+                $"https://api.steampowered.com/ISteamApps/GetAppList/v2",
                 cancellationToken);
+            return response.applist.apps.AsParallel().Select(i => new Models.Game
+            {
+                AppId = $"{i.appid}",
+                Name = i.name          
+            });
+        }
+
+        public async Task<string> GetGameNameByAppIdAsync(string appId, CancellationToken cancellationToken)
+        {
+            using var httpClient = httpClientFactory.CreateClient();
+            var response = await httpClient.GetAsync(
+            $"https://store.steampowered.com/api/appdetails?appids={Convert.ToInt32(appId)}&cc=us",
+            cancellationToken);
 
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
 
             var settings = new JsonSerializerSettings
-            {       
+            {
                 ContractResolver = new DefaultContractResolver
                 {
                     NamingStrategy = new SteamAppIdNamingStrategy(appId)
                 }
             };
 
-            var json = JsonConvert.DeserializeObject<SteamResponse>(content, settings);
+            var json = JsonConvert.DeserializeObject<SteamConcreteResponse>(content, settings);
             return json.game.data.name;
         }
     }

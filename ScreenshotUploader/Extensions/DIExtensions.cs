@@ -3,19 +3,18 @@ using Microsoft.Extensions.DependencyInjection;
 using MVVMUtilities.Abstractions;
 using MVVMUtilities.Services;
 using ScreenshotUploader.DAL.DataContext.Abstractions;
-using ScreenshotUploader.DAL.DataContext.Implementations;
+using ScreenshotUploader.Factories.Abstractions;
+using ScreenshotUploader.Factories.Implementations;
 using ScreenshotUploader.Models;
+using ScreenshotUploader.Models.SteamModels.Responses;
 using ScreenshotUploader.Services.Abstractions;
 using ScreenshotUploader.Services.Abstractions.DAL.RecentUsedGames;
+using ScreenshotUploader.Services.Abstractions.Resources;
+using ScreenshotUploader.Services.Abstractions.SteamAPI;
 using ScreenshotUploader.Services.Implementations;
 using ScreenshotUploader.Services.Implementations.DAL.RecentUsedGames;
 using ScreenshotUploader.ViewModels;
 using ScreenshotUploader.Views;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WinFormsUtilities.Services.Abstractions;
 using WinFormsUtilities.Services.Implementations;
 
@@ -27,10 +26,10 @@ namespace ScreenshotUploader.Extensions
         {
             services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<IMultiFileDialogService, 
-            MultiSelectFileDialogService>((serviceProvider) =>
-            {
-                return new MultiSelectFileDialogService("Изображения", "*.jpg");
-            });
+                MultiSelectFileDialogService>((serviceProvider) =>
+                {
+                    return new MultiSelectFileDialogService("Изображения", "*.jpg");
+                });
             services.AddSingleton<INavigationService, NavigationService>(serviceProvider =>
             {
                 var navigationService = new NavigationService(serviceProvider);
@@ -50,6 +49,7 @@ namespace ScreenshotUploader.Extensions
 
         public static void ConfigureBLLServices(this IServiceCollection services) 
         {
+            services.AddSingleton<IFileContextFactory, FileContextFactory>();
             services.AddSingleton<ISteamDirectoryService, SteamDirectoryService>();
             services.AddSingleton<ISteamFacadeService, SteamFacadeService>();
             services.AddSingleton<IAppIdService, AppIdService>();
@@ -58,9 +58,11 @@ namespace ScreenshotUploader.Extensions
             services.AddSingleton<IFreeDateReservingService, FreeDateReservingService>();
             services.AddSingleton<IFileQueryService, FileQueryService>(); 
             services.AddSingleton<IScreenshotInfoService, ScreenshotInfoService>();
-            services.AddScoped<ISteamAPIService, SteamAPIService>();
+            services.AddScoped<ISteamAPIService, SteamAPIService>()
+                .AddHttpClient();
             services.AddScoped<IRecentUsedGamesService, RecentUsedGameService>();
             services.AddSingleton<IScreenshotsFormingService, ScreenshotsFormingService>();
+            services.AddSingleton<IResourcesService<Game>, GameResourcesService>();
         }
     }
 }

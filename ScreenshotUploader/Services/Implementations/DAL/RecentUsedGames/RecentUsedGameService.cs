@@ -1,22 +1,25 @@
-﻿using ScreenshotUploader.DAL.DataContext.Abstractions;
-using ScreenshotUploader.DAL.DataContext.Implementations;
-using ScreenshotUploader.DAL.DataObjects;
+﻿using ScreenshotUploader.DAL.DataObjects;
+using ScreenshotUploader.Factories.Abstractions;
 using ScreenshotUploader.Models;
 using ScreenshotUploader.Services.Abstractions.DAL.RecentUsedGames;
-using System;
-using System.CodeDom;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ScreenshotUploader.Services.Implementations.DAL.RecentUsedGames
 {
     public class RecentUsedGameService : IRecentUsedGamesService
     {
+        private readonly IFileContextFactory fileContextFactory;
+
+        public RecentUsedGameService(IFileContextFactory fileContextFactory)
+        {
+            this.fileContextFactory = fileContextFactory;
+        }
+
         public void Create(Game entity)
         {
-            var dataContext = new FileDataContext();
+            ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+            ArgumentException.ThrowIfNullOrWhiteSpace(entity.Name, nameof(entity.Name));
+            ArgumentException.ThrowIfNullOrWhiteSpace(entity.AppId, nameof(entity.AppId));
+            using var dataContext = fileContextFactory.CreateContext();
             if (dataContext.RecentUsedGames.Any(i => i.Name == entity.Name && i.AppId == entity.AppId))
             {
                 throw new Exception("Игра уже добавлена");
@@ -32,7 +35,7 @@ namespace ScreenshotUploader.Services.Implementations.DAL.RecentUsedGames
 
         public IEnumerable<Game> Read()
         {
-            var dataContext = new FileDataContext();
+            using var dataContext = fileContextFactory.CreateContext();
             return dataContext.RecentUsedGames.Select(i => new Game
             {
                 AppId = i.AppId,

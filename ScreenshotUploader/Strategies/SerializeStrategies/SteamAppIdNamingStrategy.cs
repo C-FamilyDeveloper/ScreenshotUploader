@@ -19,7 +19,7 @@ namespace ScreenshotUploader.Strategies.SerializeStrategies
 
         protected override string ResolvePropertyName(string propertyName)
         {
-            if (propertyName == nameof(SteamResponse.game))
+            if (propertyName == nameof(SteamConcreteResponse.game))
             {
                 return appId;
             }

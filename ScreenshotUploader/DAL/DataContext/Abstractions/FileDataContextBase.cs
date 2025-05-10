@@ -3,8 +3,10 @@ using System.Text.Json;
 
 namespace ScreenshotUploader.DAL.DataContext.Abstractions
 {
-    public abstract class FileDataContextBase : IUnitOfWork
+    public abstract class FileDataContextBase : IFileDataContextBase
     {
+        private bool disposedValue;
+
         public FileDataContextBase()
         {
             foreach (var prop in this.GetType().GetProperties())
@@ -45,6 +47,23 @@ namespace ScreenshotUploader.DAL.DataContext.Abstractions
             var genericType = typeof(T).GetGenericArguments().First();
             var method = typeof(Enumerable).GetMethod(nameof(Enumerable.Empty)).MakeGenericMethod(genericType);
             return (T)method.Invoke(null, null);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                }
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

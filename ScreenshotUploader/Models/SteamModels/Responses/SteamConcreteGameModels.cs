@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ScreenshotUploader.Models.SteamModels.Responces
 {
-    public class SteamResponse
+    public class SteamConcreteResponse
     {
         public Game game { get; set; }
     }

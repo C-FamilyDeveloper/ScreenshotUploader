@@ -1,19 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using MVVMUtilities.Abstractions;
-using MVVMUtilities.Services;
-using System.Configuration;
-using System.Data;
-using System.Diagnostics;
 using System.Windows;
-using ScreenshotUploader.Views;
 using ScreenshotUploader.ViewModels;
-using ScreenshotUploader.Services.Abstractions;
-using ScreenshotUploader.Services.Implementations;
-using WinFormsUtilities.Services.Abstractions;
-using WinFormsUtilities.Services.Implementations;
-using Microsoft.Extensions.Configuration;
-using ScreenshotUploader.Models;
 using ScreenshotUploader.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace ScreenshotUploader
 {
@@ -22,25 +12,22 @@ namespace ScreenshotUploader
     /// </summary>
     public partial class App : Application
     {
-        private IServiceProvider serviceProvider;
+        private IHost host;
 
         public App()
         {
-            ServiceCollection services = new();
-            ConfigureServices(services);
-            serviceProvider = services.BuildServiceProvider();
-        }
-
-        private void ConfigureServices(IServiceCollection services)
-        {
-            services.SetupConfig();
-            services.ConfigureMVVM();
-            services.ConfigureBLLServices();
+            host = new HostBuilder().ConfigureServices(services =>
+            {
+                services.SetupConfig();
+                services.ConfigureMVVM();
+                services.ConfigureBLLServices();
+            }).Build();
         }
 
         private void OnStartup(object sender, StartupEventArgs e)
         {
-            var service = serviceProvider.GetRequiredService<INavigationService>();
+            using var scope = host.Services.CreateScope();
+            var service = scope.ServiceProvider.GetRequiredService<INavigationService>();
             service.Show<MainViewModel>();
         }
     }
