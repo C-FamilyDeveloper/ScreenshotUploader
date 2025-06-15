@@ -25,8 +25,9 @@ namespace ScreenshotUploader.Services.Implementations
             var games = recentUsedGamesService.Read();
             var statistics = gameUsedFrequancyService.Read();
             var joined = from game in games
-                join s in statistics on game.AppId equals s.AppId
-                orderby s.Frequency descending
+                join s in statistics on game.AppId equals s.AppId into gamestats
+                from gs in gamestats.DefaultIfEmpty()
+                orderby gs?.Frequency
                 select game;
             return joined;
         }
