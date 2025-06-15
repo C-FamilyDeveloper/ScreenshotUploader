@@ -3,13 +3,11 @@ using MVVMUtilities.Abstractions;
 using MVVMUtilities.Core;
 using ScreenshotUploader.Extensions;
 using ScreenshotUploader.Models;
-using ScreenshotUploader.Models.SteamModels.Responses;
 using ScreenshotUploader.Services.Abstractions;
-using ScreenshotUploader.Services.Abstractions.DAL.RecentUsedGames;
+using ScreenshotUploader.Services.Abstractions.DAL;
 using ScreenshotUploader.Services.Abstractions.Resources;
 using ScreenshotUploader.Services.Abstractions.SteamAPI;
 using System.Collections.ObjectModel;
-using System.Windows;
 using WinFormsUtilities.Services.Abstractions;
 
 namespace ScreenshotUploader.ViewModels
@@ -36,6 +34,7 @@ namespace ScreenshotUploader.ViewModels
         private readonly IScreenshotsFormingService screenshotsFormingService;
         private readonly IResourcesService<Game> resourcesService;
         private readonly ISteamAPIService steamAPIService;
+        private readonly IGameFormingService gameFormingService;
 
         public ObservableCollection<Game> Games { get; set; }
 
@@ -74,7 +73,8 @@ namespace ScreenshotUploader.ViewModels
             INavigationService navigationService,
             IScreenshotsFormingService screenshotsFormingService,
             IResourcesService<Game> resourcesService,
-            ISteamAPIService steamAPIService)
+            ISteamAPIService steamAPIService,
+            IGameFormingService gameFormingService)
         {
             SelectScreenshots = new (ChooseScreenshotsAction);
             Upload = new(UploadAction);
@@ -93,15 +93,16 @@ namespace ScreenshotUploader.ViewModels
             this.screenshotsFormingService = screenshotsFormingService;
             this.resourcesService = resourcesService;
             this.steamAPIService = steamAPIService;
-            Games = new(this.recentUsedGamesService.Read());
+            this.gameFormingService = gameFormingService;
+            Games = new(this.gameFormingService.GetGamesWithStatisticsSorting());
             Games.CollectionChanged += GamesCollectionChanged;
             Load = new(LoadAction);
         }
 
         private async Task LoadAction()
         {
-            var result = await steamAPIService.GetGameListAsync(CancellationToken.None);
-            resourcesService.SetResource(result);
+            /*var result = await steamAPIService.GetGameListAsync(CancellationToken.None);
+            resourcesService.SetResource(result.ToList());*/
         }
 
         private void GamesCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -136,6 +137,7 @@ namespace ScreenshotUploader.ViewModels
             {
                 steamService.UploadScreenshots(config.Value.RemoteFolder, Screenshots);
                 GameSelectedIndex = -1;
+                Screenshots.Clear();
                 dialogService.ShowMessage("Успешно завершено");
             }
             catch (Exception ex)

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ScreenshotUploader.Services.Abstractions.DAL.RecentUsedGames
+namespace ScreenshotUploader.Services.Abstractions.DAL
 {
     public interface IRecentUsedGamesService : ICreatable<Game>, IReadable<Game>
     {

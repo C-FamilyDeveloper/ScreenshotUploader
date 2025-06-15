@@ -15,5 +15,6 @@ namespace ScreenshotUploader.DAL.DataContext.Implementations
     public class FileDataContext : FileDataContextBase, IFileDataContext
     {
         public IEnumerable<RecentUsedGame> RecentUsedGames { get ; set; }
+        public IEnumerable<GameUsedFrequancy> GameUsedFrequancys { get; set; }
     }
 }

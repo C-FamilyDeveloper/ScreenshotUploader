@@ -1,9 +1,9 @@
 ﻿using ScreenshotUploader.DAL.DataObjects;
 using ScreenshotUploader.Factories.Abstractions;
 using ScreenshotUploader.Models;
-using ScreenshotUploader.Services.Abstractions.DAL.RecentUsedGames;
+using ScreenshotUploader.Services.Abstractions.DAL;
 
-namespace ScreenshotUploader.Services.Implementations.DAL.RecentUsedGames
+namespace ScreenshotUploader.Services.Implementations.DAL
 {
     public class RecentUsedGameService : IRecentUsedGamesService
     {

@@ -8,11 +8,11 @@ using ScreenshotUploader.Factories.Implementations;
 using ScreenshotUploader.Models;
 using ScreenshotUploader.Models.SteamModels.Responses;
 using ScreenshotUploader.Services.Abstractions;
-using ScreenshotUploader.Services.Abstractions.DAL.RecentUsedGames;
+using ScreenshotUploader.Services.Abstractions.DAL;
 using ScreenshotUploader.Services.Abstractions.Resources;
 using ScreenshotUploader.Services.Abstractions.SteamAPI;
 using ScreenshotUploader.Services.Implementations;
-using ScreenshotUploader.Services.Implementations.DAL.RecentUsedGames;
+using ScreenshotUploader.Services.Implementations.DAL;
 using ScreenshotUploader.ViewModels;
 using ScreenshotUploader.Views;
 using WinFormsUtilities.Services.Abstractions;
@@ -63,6 +63,9 @@ namespace ScreenshotUploader.Extensions
             services.AddScoped<IRecentUsedGamesService, RecentUsedGameService>();
             services.AddSingleton<IScreenshotsFormingService, ScreenshotsFormingService>();
             services.AddSingleton<IResourcesService<Game>, GameResourcesService>();
+            services.AddSingleton<IGameFormingService, GameFormingService>();
+            services.AddScoped<IGameUsedFrequancyService, GameUsedFrequancyService>();
+            services.AddSingleton<IScreenshotsStatisticsService, ScreenshotsStatisticsService>();
         }
     }
 }

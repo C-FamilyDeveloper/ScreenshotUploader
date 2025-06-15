@@ -14,15 +14,26 @@ namespace ScreenshotUploader.ViewModels
         private readonly ISteamAPIService steamAPIService;
         private readonly INavigationService navigationService;
         private readonly IResourcesService<Game> resourcesService;
+        private readonly IDialogService dialogService;
 
         public CustomObservableCollection<string> GameNames { get; set; } = new();
+
         private IEnumerable<Game> games = [];
+
 
         private string gameText;
         public string GameText
         {
             get { return gameText; }
             set { gameText = value; OnPropertyChanged(); pagination.ToFirst(); }
+        }
+
+        private int index = -1;
+
+        public int Index
+        {
+            get { return index; }
+            set { index = value; OnPropertyChanged(); }
         }
 
 
@@ -41,12 +52,14 @@ namespace ScreenshotUploader.ViewModels
         public AddGameViewModel(IAppIdService appIdService,
             ISteamAPIService steamAPIService,
             INavigationService navigationService,
-            IResourcesService<Game> resourcesService)
+            IResourcesService<Game> resourcesService, 
+            IDialogService dialogService)
         {
             this.appIdService = appIdService;
             this.steamAPIService = steamAPIService;
             this.navigationService = navigationService;
             this.resourcesService = resourcesService;
+            this.dialogService = dialogService;
             Confirm = new(ConfirmAction);
             Search = new(SearchAction);
             pagination.PageSize = 10;
@@ -54,12 +67,18 @@ namespace ScreenshotUploader.ViewModels
 
         public async Task ConfirmAction()
         {
+            /*if (Index == -1)
+            {
+                dialogService.ShowWarningMessage("Необходимо выбрать игру из списка", "Ошибка");
+                return;
+            }
+            var game = games.ElementAt(index);
             Game = resourcesService.GetResourceBySpecification
                 (
-                 new GameNameEqualSpecification(GameText), new PaginationModel { PageSize = 1 }
-                ).First();
-            /*Game.AppId = appIdService.GetCorrectAppId(Game.AppId);
-            Game.Name = await steamAPIService.GetGameNameByAppIdAsync(Game.AppId, CancellationToken.None);*/
+                 new GameNameEqualSpecification(game.Name), new PaginationModel { PageSize = 1 }
+                ).First();*/
+            Game.AppId = appIdService.GetCorrectAppId(Game.AppId);
+            Game.Name = await steamAPIService.GetGameNameByAppIdAsync(Game.AppId, CancellationToken.None);
             navigationService.ExecuteWithDispatcher<AddGameViewModel>(navigationService.Close<AddGameViewModel>);
         }
 

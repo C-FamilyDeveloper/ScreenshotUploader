@@ -10,5 +10,6 @@ namespace ScreenshotUploader.DAL.DataContext.Abstractions
     public interface IFileDataContext : IFileDataContextBase
     {
         IEnumerable<RecentUsedGame> RecentUsedGames { get; set; }
+        IEnumerable<GameUsedFrequancy> GameUsedFrequancys { get; set; }
     }
 }
