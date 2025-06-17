@@ -27,7 +27,7 @@ namespace ScreenshotUploader.Services.Implementations
             var joined = from game in games
                 join s in statistics on game.AppId equals s.AppId into gamestats
                 from gs in gamestats.DefaultIfEmpty()
-                orderby gs?.Frequency
+                orderby gs?.Frequency descending
                 select game;
             return joined;
         }
