@@ -1,4 +1,5 @@
-﻿using ScreenshotUploader.Models;
+﻿using ScreenshotUploader.DAL.DataObjects;
+using ScreenshotUploader.Models;
 using ScreenshotUploader.Services.Abstractions.DAL.BaseCRUD;
 using ScreenshotUploader.Services.Abstractions.DAL.BaseCRUD.AdditionalInterfaces;
 using System;
@@ -12,7 +13,7 @@ namespace ScreenshotUploader.Services.Abstractions.DAL
     public interface IGameUsedFrequancyService : ICreatable<GameFrequancy>, 
         IReadable<GameFrequancy>, 
         IUpdatable<GameFrequancy>,
-        IExistable<GameFrequancy>
+        IReadableBySpecification<GameUsedFrequancy>
     {
         
     }

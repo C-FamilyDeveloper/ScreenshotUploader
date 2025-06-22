@@ -1,6 +1,7 @@
 ﻿using ScreenshotUploader.Models;
 using ScreenshotUploader.Services.Abstractions;
 using ScreenshotUploader.Services.Abstractions.DAL;
+using ScreenshotUploader.Specifications.Implementations.GameFrequancies;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,16 +21,23 @@ namespace ScreenshotUploader.Services.Implementations
 
         public void AnalyzeStatistics(int appId, int count)
         {
+            var specification = new AppIdEqualSpecification(appId.ToString());
+            var frequancy = gameUsedFrequancyService.ReadBySpecification(specification).FirstOrDefault();
+            if (frequancy is not null)
+            {
+                var frequancyDTO = new GameFrequancy
+                {
+                    AppId = frequancy.GameAppId,
+                    Frequency = frequancy.UsedFrequancy + count
+                };
+                gameUsedFrequancyService.Update(frequancyDTO);
+                return;
+            }
             var entity = new GameFrequancy
             {
                 AppId = appId.ToString(),
                 Frequency = count
             };
-            if (gameUsedFrequancyService.IsExist(entity))
-            {
-                gameUsedFrequancyService.Update(entity);
-                return;
-            }
             gameUsedFrequancyService.Create(entity);
         }
     }

@@ -2,6 +2,7 @@
 using ScreenshotUploader.Factories.Abstractions;
 using ScreenshotUploader.Models;
 using ScreenshotUploader.Services.Abstractions.DAL;
+using ScreenshotUploader.Specifications.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,12 +37,6 @@ namespace ScreenshotUploader.Services.Implementations.DAL
             dataContext.SaveChanges();
         }
 
-        public bool IsExist(GameFrequancy entity)
-        {
-            using var dataContext = fileContextFactory.CreateContext();
-            return dataContext.GameUsedFrequancys.Any(i => i.GameAppId == entity.AppId);
-        }
-
         public IEnumerable<GameFrequancy> Read()
         {
             using var dataContext = fileContextFactory.CreateContext();
@@ -50,6 +45,12 @@ namespace ScreenshotUploader.Services.Implementations.DAL
                 AppId = i.GameAppId,
                 Frequency = i.UsedFrequancy
             });
+        }
+
+        public IEnumerable<GameUsedFrequancy> ReadBySpecification(ISpecification<GameUsedFrequancy> specification)
+        {
+            using var dataContext = fileContextFactory.CreateContext();
+            return dataContext.GameUsedFrequancys.Where(specification.IsSatisfiedBy);
         }
 
         public void Update(GameFrequancy entity)
