@@ -10,33 +10,33 @@ using System.Threading.Tasks;
 
 namespace ScreenshotUploader.Services.Implementations
 {
-    public class ScreenshotsStatisticsService : IScreenshotsStatisticsService
+    public class FrequancyStatisticsService : IFrequancyStatisticsService
     {
         private readonly IGameUsedFrequancyService gameUsedFrequancyService;
 
-        public ScreenshotsStatisticsService(IGameUsedFrequancyService gameUsedFrequancyService)
+        public FrequancyStatisticsService(IGameUsedFrequancyService gameUsedFrequancyService)
         {
             this.gameUsedFrequancyService = gameUsedFrequancyService;
         }
 
-        public void AnalyzeStatistics(int appId, int count)
+        public void ActualizeFrequancy(string appId, int frequancy)
         {
-            var specification = new AppIdEqualSpecification(appId.ToString());
-            var frequancy = gameUsedFrequancyService.ReadBySpecification(specification).FirstOrDefault();
-            if (frequancy is not null)
+            var specification = new AppIdEqualSpecification(appId);
+            var frequancyDTO = gameUsedFrequancyService.ReadBySpecification(specification).FirstOrDefault();
+            if (frequancyDTO is not null)
             {
-                var frequancyDTO = new GameFrequancy
+                var updatedFrequancyDTO = new GameFrequancy
                 {
-                    AppId = frequancy.GameAppId,
-                    Frequency = frequancy.UsedFrequancy + count
+                    AppId = frequancyDTO.GameAppId,
+                    Frequency = frequancyDTO.UsedFrequancy + frequancy
                 };
-                gameUsedFrequancyService.Update(frequancyDTO);
+                gameUsedFrequancyService.Update(updatedFrequancyDTO);
                 return;
             }
             var entity = new GameFrequancy
             {
-                AppId = appId.ToString(),
-                Frequency = count
+                AppId = appId,
+                Frequency = frequancy
             };
             gameUsedFrequancyService.Create(entity);
         }

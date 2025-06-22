@@ -16,11 +16,11 @@ namespace ScreenshotUploader.Services.Implementations
     {
         private readonly IFileQueryService fileService;
         private readonly ISteamDirectoryService steamDirectoryService;
-        private readonly IScreenshotsStatisticsService screenshotsStatisticsService;
+        private readonly IScreenshotsStatisticsFacadeService screenshotsStatisticsService;
 
         public SteamFacadeService(IFileQueryService fileService,
             ISteamDirectoryService steamDirectoryService,
-            IScreenshotsStatisticsService screenshotsStatisticsService)
+            IScreenshotsStatisticsFacadeService screenshotsStatisticsService)
         {
             this.fileService = fileService;
             this.steamDirectoryService = steamDirectoryService;
@@ -43,7 +43,7 @@ namespace ScreenshotUploader.Services.Implementations
             foreach (var group in groups)
             {
                 UploadGame(remoteSteamPath, group.Select(i => i.ScreenshotPath), group.Key);
-                screenshotsStatisticsService.AnalyzeStatistics(Convert.ToInt32(group.Key), group.Count());
+                screenshotsStatisticsService.ActualizeStatistics(group.Key, group.Count());
             }
         }
 

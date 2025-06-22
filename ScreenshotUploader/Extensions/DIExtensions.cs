@@ -65,7 +65,10 @@ namespace ScreenshotUploader.Extensions
             services.AddSingleton<IResourcesService<Game>, GameResourcesService>();
             services.AddSingleton<IGameFormingService, GameFormingService>();
             services.AddScoped<IGameUsedFrequancyService, GameUsedFrequancyService>();
-            services.AddSingleton<IScreenshotsStatisticsService, ScreenshotsStatisticsService>();
+            services.AddScoped<IGameLastUsingDateTimeService, GameLastUsingDateTimeService>();
+            services.AddScoped<IDateTimeStatisticsService, DateTimeStatisticsService>();
+            services.AddScoped<IFrequancyStatisticsService, FrequancyStatisticsService>();
+            services.AddSingleton<IScreenshotsStatisticsFacadeService, ScreenshotsStatisticsFacadeService>();
         }
     }
 }

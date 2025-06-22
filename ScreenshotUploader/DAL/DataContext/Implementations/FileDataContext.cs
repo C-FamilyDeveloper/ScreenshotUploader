@@ -16,5 +16,6 @@ namespace ScreenshotUploader.DAL.DataContext.Implementations
     {
         public IEnumerable<RecentUsedGame> RecentUsedGames { get ; set; }
         public IEnumerable<GameUsedFrequancy> GameUsedFrequancys { get; set; }
+        public IEnumerable<GameLastUsingDateTime> GameLastUsingDateTimes { get; set; }
     }
 }

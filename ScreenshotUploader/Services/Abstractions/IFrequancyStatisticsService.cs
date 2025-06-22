@@ -1,5 +1,4 @@
-﻿using ScreenshotUploader.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace ScreenshotUploader.Services.Abstractions
 {
-    public interface IScreenshotsStatisticsService
+    public interface IFrequancyStatisticsService
     {
-        void AnalyzeStatistics(int appId, int count);
+        void ActualizeFrequancy(string appId, int frequancy);
     }
 }

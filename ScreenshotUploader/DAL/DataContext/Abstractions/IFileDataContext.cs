@@ -11,5 +11,6 @@ namespace ScreenshotUploader.DAL.DataContext.Abstractions
     {
         IEnumerable<RecentUsedGame> RecentUsedGames { get; set; }
         IEnumerable<GameUsedFrequancy> GameUsedFrequancys { get; set; }
+        IEnumerable<GameLastUsingDateTime> GameLastUsingDateTimes { get; set;}
     }
 }
