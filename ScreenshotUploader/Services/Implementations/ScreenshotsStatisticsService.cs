@@ -28,6 +28,7 @@ namespace ScreenshotUploader.Services.Implementations
             if (gameUsedFrequancyService.IsExist(entity))
             {
                 gameUsedFrequancyService.Update(entity);
+                return;
             }
             gameUsedFrequancyService.Create(entity);
         }
