@@ -28,7 +28,7 @@ namespace ScreenshotUploader.Services.Implementations
             for (var i = 0; i < fileQuery.FilePaths.Count(); i++)
             {
                 var newDate = freeDateReservingService.Reserve();
-                var newName = $"{newDate:yyyyMMddhhmmss}_{lastScreenshotIndex + i + 1}.jpg";
+                var newName = $"{newDate:yyyyMMddHHmmss}_{lastScreenshotIndex + i + 1}.jpg";
                 foreach (var destination in fileQuery.Destinations)
                 {
                     CopyFileToDirectoryWithNewName(fileQuery.FilePaths.ElementAt(i), destination, newName);
