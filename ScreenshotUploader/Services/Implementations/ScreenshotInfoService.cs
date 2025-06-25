@@ -43,7 +43,7 @@ namespace ScreenshotUploader.Services.Implementations
         private DateTime GetScreenshotDate(string path)
         {
             var filename = Path.GetFileNameWithoutExtension(path);
-            return DateTime.ParseExact(filename.Split('_').First(), "yyyyMMddhhmmss", null);
+            return DateTime.ParseExact(filename.Split('_').First(), "yyyyMMddHHmmss", null);
         }
     }
 }
